@@ -2,14 +2,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.io.IOException;
 
 class Solution {	
     static int n;
-    static int[] pos, weight;    
+    static double[] pos, weight;    
     static final int G = 1;
-    static ArrayList<Double> arrList;
 	public static void main(String[] args) throws IOException{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -18,49 +16,74 @@ class Solution {
         
         for(int test=1; test<=testNum; test++){
             n = Integer.parseInt(br.readLine());
-            pos = new int[n];
-            weight = new int[n];
+            pos = new double[n];
+            weight = new double[n];
 
             // x좌표
             String[] temp = br.readLine().split(" ");
-            int sum = 0;
             for(int i=0; i<n; i++){
-                int t = Integer.parseInt(temp[i]);
-                pos[i] = t;
-                sum += t;
+                pos[i] = Double.parseDouble(temp[i]);
             }
             
             // 무게
             for(int i=n; i<n*2; i++){
-                weight[i-n] = Integer.parseInt(temp[i]);
+                weight[i-n] = Double.parseDouble(temp[i]);
             }
-            arrList = new ArrayList<>();
-            solve();
             
-            bw.write("#" + test + " ");
-            for(int i=0; i<arrList.size(); i++){
-                bw.write(arrList.get(i) + " ");
+            System.out.print("#" + test + " ");
+            // n-1개의 균형점 찾기
+            // solve(idx, depth, mid, left, right)
+            for(int i=0; i<n-1; i++) {
+            	System.out.print(String.format("%.10f ", solve(i, 0, (pos[i] + pos[i+1])/2, pos[i], pos[i+1])));
             }
-            bw.newLine();
+            
+            System.out.println();
         }
+              
         bw.flush();
         bw.close();
 		br.close();
     }
-
-    public static void solve(){
-        // 점들 사이에 있는 n-1의 경우 모두 다 따져보기
-        for(int i=0; i<n-1; i++){
-            double result = (Math.sqrt(weight[i]) * (pos[i+1] - pos[i]) ) / (Math.sqrt(weight[i]) + Math.sqrt(weight[i+1]) );
-            arrList.add(result + pos[i]);
+	
+	public static double solve(int idx, int depth, double mid, double left, double right) {
+		if( depth == 100) return mid;
+		double f = 0.0;
+		double result = 0.0;
+		
+		f += calLeft(idx,mid);
+		f -= calRight(idx, mid);
+        
+		// 오른쪽의 힘이 더 크므로 왼쪽으로 이동
+        if(f < 0) {
+        	result = solve(idx, depth+1, (left + mid)/2.0, left, mid);
         }
+        // 오른쪽으로 더 이동
+        else if ( f > 0) {
+        	result = solve(idx,depth+1, (mid + right)/2.0, mid, right);
+        }
+        else {
+        	result = mid;
+        }
+        return result;
+	}
+	
+	public static double calLeft(int i, double t) {
+    	double left = 0.0;
+    	for(int j=0; j<i+1; j++) {
+    		left += calForce(weight[j],1,t-pos[j]);
+    	}
+    	return left;
     }
-
-    public static double calForce(int m1, int m2, int d){
+	
+    public static double calRight(int i, double t) {
+    	double right = 0.0;
+    	for(int j=i+1; j<n; j++) {
+    		right += calForce(1,weight[j], pos[j] - t);
+    	}
+    	return right;
+    }
+    
+    public static double calForce(double m1, double m2, double d){
         return G*m1*m2/(d*d);
-    }
-
-    public static boolean isPossible(){
-        return true;
     }
 }

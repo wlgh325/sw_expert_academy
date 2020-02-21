@@ -6,13 +6,14 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.io.IOException;
 
-class Main {	
+class Solution {	
     static int vertexNum, edgeNum;
     static int a, b;
-    static int[][] adj;
+    static ArrayList<ArrayList<Integer>> tree;
     static boolean[] visited;
     static ArrayList<Integer> left;
     static ArrayList<Integer> right;
+    static boolean flag, flag2;
 	public static void main(String[] args) throws IOException{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -26,21 +27,26 @@ class Main {
             edgeNum = Integer.parseInt(temp[1]);
             a = Integer.parseInt(temp[2]);
             b = Integer.parseInt(temp[3]);
-            adj = new int[vertexNum+1][vertexNum+1];
+            
+            tree = new ArrayList<ArrayList<Integer>>();
+            for(int i=0; i<vertexNum+1; i++)
+            	tree.add(new ArrayList<Integer>());
 
             String[] temp2 = br.readLine().split(" ");
             for(int i=0; i<edgeNum*2-1; i+=2){
                 int a = Integer.parseInt(temp2[i]);
                 int b = Integer.parseInt(temp2[i+1]);
-                adj[a][b] = 1;
-                adj[a][0]++;
+                tree.get(a).add(b);
             }
+            flag = false;
+            flag2 = false;
 
-            // 첫번째 노드 찾기
+            // 두 노드 찾기
             visited = new boolean[vertexNum+1];
             ArrayList<Integer> list = new ArrayList<>();
             dfs(1, a, b, list);
 
+            // 공통 조상 찾기
             int same = 1;
             for(int i=0; i<left.size(); i++){
                 for(int j=0; j<right.size(); j++){
@@ -51,6 +57,7 @@ class Main {
                 }
             }
 
+            // 공통조상의 자식 개수 찾기
             visited = new boolean[vertexNum+1];
             bw.write("#" + test + " " + same + " " + dfs2(same));
             bw.newLine();
@@ -70,22 +77,13 @@ class Main {
         int ans = 0;
         while(!stack.isEmpty()){
             int t = stack.pop();
-            int cnt = 0;
             visited[t] = true;
-            for(int i=1; i<=vertexNum; i++){
-                // 모두 방문 하였을 경우, 방문할 점이 없는 경우
-                if(cnt == adj[t][0])
-                    break;
-
+            for(int i=0; i<tree.get(t).size(); i++) {
                 // 연결된 점 방문
-                if(adj[t][i] == 1){
-                    cnt++;
-                    if(!visited[i]){
-                        stack.add(i);
-                        ans++;
-                    }
+                if(!visited[tree.get(t).get(i)]){
+                    stack.add(tree.get(t).get(i));
+                    ans++;
                 }
-
             }
         }
         // 출발점 추가
@@ -93,28 +91,25 @@ class Main {
     }
 
     static void dfs(int k, int find, int find2, ArrayList<Integer> list){
-        int cnt = 0;
         if(k==find){
         	left = deepCopy(list);
+        	flag = true;
             return;
         }
         else if(k==find2) {
-        	right = deepCopy(list);
+            right = deepCopy(list);
+            
+            flag2 = true;
         	return;
         }
-        for(int i=1; i<=vertexNum; i++){
-            // 연결된 점이 없으면
-            if(adj[k][0] == 0)
-                break;
-            if(adj[k][i] == 1){
-                cnt++;
-                if(!visited[i]){
-                    ArrayList<Integer> temp = deepCopy(list);
-                    temp.add(i);
-                    dfs(i, find, find2, temp);
-                }
-                if(cnt == adj[k][0])
-                    break;
+        for(int i=0; i<tree.get(k).size(); i++){
+        	int next = tree.get(k).get(i);
+            if(!visited[next]){
+                ArrayList<Integer> temp = deepCopy(list);
+                temp.add(next);
+                dfs(next, find, find2, temp);
+                if(flag && flag2)
+                    return;
             }
         }
     }

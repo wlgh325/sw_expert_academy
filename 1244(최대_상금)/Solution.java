@@ -24,10 +24,8 @@ class Solution {
             arr = new int[temp[0].length()];
             String[] temp2 = temp[0].split("");
             
-
             for(int i=0; i<arr.length; i++){
-                int t = Integer.parseInt(temp2[i]);
-                arr[i] = t;
+                arr[i] = Integer.parseInt(temp2[i]);
             }
             result = 0;
             dfs(0,0);
@@ -43,16 +41,17 @@ class Solution {
         int t;
         if(cnt == move){
             str = "";
-            Arrays.stream(arr).forEach(x -> str += String.valueOf(x));
-            result = Math.max(result, Integer.parseInt(str));
+            Arrays.stream(arr).forEach(x -> str += String.valueOf(x));  // 문자로 변환
+            result = Math.max(result, Integer.parseInt(str));   // 숫자로 변환하여 값 비교
             return;
         }
+        // 뒤의 값들과 차례차례 바꿔 나가며 모든 경우 조사
         for(int i=k; i<arr.length; i++){
             for(int j=i+1; j<arr.length; j++){
                 if(arr[i] <= arr[j]){
-                    t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+                    t = arr[i]; arr[i] = arr[j]; arr[j] = t;    // swap
                     dfs(i, cnt + 1);
-                    t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+                    t = arr[i]; arr[i] = arr[j]; arr[j] = t;    // 원래 자리로 돌려놓기
 
                 }
             }

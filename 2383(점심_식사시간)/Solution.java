@@ -27,7 +27,7 @@ class Pos{
 class Solution {
     static int min;
     static int N;
-    static Queue<Pos> queue;
+    static ArrayList<Pos> persons;
     static ArrayList<Pos> stairs;
     static boolean[] visited;
     static int[] floors;
@@ -39,7 +39,7 @@ class Solution {
          
         for(int test=1; test<=testNum; test++){
             N = Integer.parseInt(br.readLine());
-            queue = new LinkedList<>();
+            persons = new ArrayList<>();
             stairs = new ArrayList<>();
 
             for(int i=0; i<N; i++){
@@ -47,16 +47,16 @@ class Solution {
                 for(int j=0; j<N; j++){
                     int t = Integer.parseInt(temp[j]);
                     if(t == 1)
-                        queue.offer(new Pos(i,j));
+                        persons.add(new Pos(i,j));
                     else if( t >= 1)
-                        stairs.add(new Pos(i, j, t+1, 0));
+                        stairs.add(new Pos(i, j, t, 0));
                 }
             }
 
             min = Integer.MAX_VALUE;
-            for(int i=0; i<=queue.size()/2; i++){
-                visited = new boolean[queue.size()];
-                comb(0,i,queue.size());
+            for(int i=0; i<=persons.size()/2; i++){
+                visited = new boolean[persons.size()];
+                comb(0,i,persons.size());
             }
 
             System.out.println("#" + test + " " + min);
@@ -66,7 +66,32 @@ class Solution {
 
     public static void comb(int start, int r, int num){
         if(r == 0){
-            solve(num);
+            // 선택한 계단과의 거리 구하기
+            ArrayList<Integer> dist = new ArrayList<>();
+            ArrayList<Integer> dist2 = new ArrayList<>();
+            boolean[] visited2 = new boolean[num];
+
+            // 계단과의 거리 구하기
+            for(int i=0; i<num; i++){
+                visited2[i] = !visited[i];
+                if(visited[i]){
+                    dist.add(Math.abs(persons.get(i).x - stairs.get(0).x) + Math.abs(persons.get(i).y - stairs.get(0).y));
+                    dist2.add(Math.abs(persons.get(i).x - stairs.get(1).x) + Math.abs(persons.get(i).y - stairs.get(1).y));
+                }
+                else{
+                    dist.add(Math.abs(persons.get(i).x - stairs.get(1).x) + Math.abs(persons.get(i).y - stairs.get(1).y));
+                    dist2.add(Math.abs(persons.get(i).x - stairs.get(0).x) + Math.abs(persons.get(i).y - stairs.get(0).y));
+                }
+            }
+            
+            // 계단으로 움직이기
+            int time = move(dist, num, visited);
+            min = min > time ? time : min;
+            
+            // 계단을 반대로 이용하기
+            time = move(dist2, num, visited2);
+            min = min > time ? time : min;
+
             return;
         }
         for(int i=start; i<num; i++){
@@ -76,132 +101,60 @@ class Solution {
         }
     }
 
-    public static void solve(int num){
-        int time = 0;
-        floors = new int[num];
-        checks = new boolean[num];
+    public static int move(ArrayList<Integer> dist, int num, boolean[] visited){
         int cnt = 0;
+        int time = 0;
 
-        // 원본 유지하기 위해서 복사 queue 만들기
-        Pos[] temp = queue.toArray(new Pos[queue.size()]);
-        Queue<Pos> q = new LinkedList<>();
-        for(int i=0; i<temp.length; i++)
-            q.add(new Pos(temp[i].x, temp[i].y));
-
-        // 내려가야 하는 층수
-        for(int i=0; i<num; i++){
-            if(visited[i])
-                floors[i] = stairs.get(0).floor;        
-            else
-                floors[i] = stairs.get(1).floor;
-        }
-
-        stairs.get(0).on = 0;
-        stairs.get(1).on = 0;
+        // 계단을 이용중인 사람수 관리
+        Queue<Integer> q[] = new LinkedList[2];
+        q[0] = new LinkedList<>();  // 첫 번째 계단 이용
+        q[1] = new LinkedList<>();  // 두 번째 계단 이용
 
         while(true){
-            for(int i=0; i<num; i++){
-                Pos p = q.poll();
-
-                // 계단1
-                if(visited[i])
-                    usingStair(0, p, i);            
-                // 계단 2
-                else if(!visited[i])
-                   usingStair(1, p, i);
-                
-                // 계단을 모두 내려온 경우
-                if(floors[i] == 0){
-                    cnt ++;
-                    if(visited[i])
-                        stairs.get(0).on--;
-                    else
-                        stairs.get(1).on--;
-                    checks[i] = false;
-                }
-                q.offer(new Pos(p.x, p.y));
-            }
-            time++;
-
+            // 모두 아래층에 도착한 경우 탈출
             if(cnt == num)
                 break;
-        }
-        min = min > time ? time : min;
-
-        // 바꿔서 계단 이동
-        time = 0;
-        floors = new int[num];
-        checks = new boolean[num];
-        cnt = 0;
-        q.clear();
-        for(int i=0; i<temp.length; i++)
-            q.add(new Pos(temp[i].x, temp[i].y));
-
-        // 내려가야 하는 층수
-        for(int i=0; i<num; i++){
-            if(!visited[i])
-                floors[i] = stairs.get(0).floor;        
-            else
-                floors[i] = stairs.get(1).floor;
-        }
-
-        stairs.get(0).on = 0;
-        stairs.get(1).on = 0;
-
-        while(true){
+            // 거리를 감소시키며 계단으로 이동 시키기
             for(int i=0; i<num; i++){
-                Pos p = q.poll();
-
-                // 계단1
-                if(!visited[i])
-                    usingStair(0, p, i);            
-                // 계단 2
-                else if(visited[i])
-                   usingStair(1, p, i);
-                
-                // 계단을 모두 내려온 경우
-                if(floors[i] == 0){
-                    cnt ++;
-                    if(!visited[i])
-                        stairs.get(0).on--;
-                    else
-                        stairs.get(1).on--;
+                // 계단에 이미 도착한 경우는 continue
+                if(dist.get(i) < 0)
+                    continue;
+                // 계단에 도착한 경우
+                if(dist.get(i) == 0){
+                    if(visited[i]){
+                        if(q[0].size() < 3){
+                            dist.set(i, -1);
+                            q[0].offer(stairs.get(0).floor);
+                        }
+                        
+                    }
+                    else{
+                        if(q[1].size() < 3){
+                            dist.set(i, -1);
+                            q[1].offer(stairs.get(1).floor);
+                        }
+                    }
+                    // dist를 빼지 않고(움직이지 않고) continue
+                    continue;
                 }
-                q.offer(new Pos(p.x, p.y));
+                dist.set(i, dist.get(i) - 1);
+            }
+            
+            // 계단에 있는 사람들 이동시키기
+            for(int i=0; i<2; i++){
+                int size = q[i].size();
+                for(int j=0; j<size; j++){
+                    int floor = q[i].poll();
+                    // 내려가야 하는 계단 수가 1이상이면 내려감
+                    if(floor > 1)
+                        q[i].offer(floor-1);
+                    else
+                        // 다 내려왔으면 count 처리
+                        cnt++;
+                }
             }
             time++;
-
-            if(cnt == num)
-                break;
         }
-        min = min > time ? time : min;
-    }
-
-    public static void usingStair(int stairNum, Pos p, int i){
-        Pos stair = stairs.get(stairNum);
-        // 계단에 도착한 경우 대기인이 3명이 아닌 경우에만 내려감
-        if((stair.y == p.y && stair.x == p.x && stair.on < 3) || checks[i]){
-            if(!checks[i]){
-                stairs.get(stairNum).on++;
-                checks[i] = true;
-            }
-            floors[i]--;
-        }
-        else{
-            // y좌표를 맞춘다.
-            if(p.y != stair.y){
-                if(p.y < stair.y)
-                    p.y++;
-                else
-                    p.y--;
-            }
-            // y맞추고 x좌표를 맞춤
-            else if(p.x != stair.x){
-                if(p.x < stair.x)
-                    p.x++;
-                else
-                    p.x--;
-            }
-        }
+        return time+1;
     }
 }

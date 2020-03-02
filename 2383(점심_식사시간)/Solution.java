@@ -105,7 +105,8 @@ class Solution {
         int cnt = 0;
         int time = 0;
 
-        // 계단을 이용중인 사람수 관리
+        // 계단을 이용중인 사람 관리
+        // queue의 크기가 계단을 이용중인 사람 수를 나타낸다.
         Queue<Integer> q[] = new LinkedList[2];
         q[0] = new LinkedList<>();  // 첫 번째 계단 이용
         q[1] = new LinkedList<>();  // 두 번째 계단 이용
@@ -116,7 +117,7 @@ class Solution {
                 break;
             // 거리를 감소시키며 계단으로 이동 시키기
             for(int i=0; i<num; i++){
-                // 계단에 이미 도착한 경우는 continue
+                // 계단을 내려가고 있는 중
                 if(dist.get(i) < 0)
                     continue;
                 // 계단에 도착한 경우
@@ -134,7 +135,7 @@ class Solution {
                             q[1].offer(stairs.get(1).floor);
                         }
                     }
-                    // dist를 빼지 않고(움직이지 않고) continue
+                    // 계단에 이미 도착하였기 때문에 거리를 줄이지 않고(움직이지 않고) continue
                     continue;
                 }
                 dist.set(i, dist.get(i) - 1);

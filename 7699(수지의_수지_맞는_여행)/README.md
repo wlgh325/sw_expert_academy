@@ -1,5 +1,6 @@
 # sw expert academy 7699번 수지의 수지 맞는 여행 자바(java)  풀이
 - 난이도 : D4
+- 풀이시간 : 약 30분
 - [sw expert academy 7699번 수지의 수지 맞는 여행](https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AWqUzj0arpkDFARG)
 
 ## [티스토리 주소](https://hoho325.tistory.com/)

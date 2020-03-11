@@ -15,9 +15,10 @@
 7. 상하좌우 방향으로 한 칸씩 움직일 수 있다.
 
 # 문제로직
-간단합니다. bfs로 모든 경우를 탐색합니다. 그 위치에서의 최대값을 갱신해나갑니다.  우하단의 값을 가지고 최소값을 update해나가면 됩니다.
+간단합니다. bfs로 모든 경우를 탐색합니다. 그 위치에서의 최대값을 갱신해나갑니다.  우하단의 값을 가지고 최소값을 update해나가면 됩니다.  
+이 외에도 dfs와 다익스트라 알고리즘을 이용해서도 풀어보았습니다.  (bfs로 탐색한 경우가 제일 빠름)
 
-# bfs
+# bfs (Solution.java)
 bfs를 구현하기 위해서 queue를 사용하였습니다.  
 4번에서 방문하였더라도 그 길로 오는 것이 복구시간이 더 작은 경우 update 해주고 그 길로 이동하도록 하여야 합니다.
 1. 시작 위치를 방문했다고 check하고 queue에 넣습니다.
@@ -32,3 +33,57 @@ bfs를 구현하기 위해서 queue를 사용하였습니다.
 5. 위와 같은 과정을 우 하단에 도착할때 까지 반복하여 최소 값을 갱신해 나갑니다.
     이럻게 하면 우 하단에 오기까지 모든 경우중 가장 작은 값을 구할 수 있습니다.
 
+# bsf 우선순위 큐 이용(Solution2.java)
+일반 큐 대신 우선순위 큐를 이용하여 시간이 덜 걸리는 곳 먼저 꺼내서 탐색 합니다.  
+우선 순위 큐는 다음과 같이 선언합니다.
+```java
+import java.util.PriorityQueue;
+PriorityQueue<Pos> q = new PriorityQueue<>();
+```
+그리고 큐에 담는 Pos 객체에 Comparable을 구현해야 합니다.  시간이 작은 것을 먼저 빼야 하기 때문에 오름차순 정렬합니다.
+```java
+class Pos implements Comparable<Pos>{
+    int x;
+    int y;
+    int time;
+
+    Pos(int x, int y, int time){
+        this.x = x;
+        this.y = y;
+        this.time = time;
+    }
+    
+    // 오름차순 정렬
+    @Override
+    public int compareTo(Pos p){
+        if(this.time > p.time)
+            return 1;
+        else if(this.time < p.time)
+            return -1;
+        return 0;
+    }
+}
+```
+
+# dfs (Solution3.java)
+이러한 문제 유형은 bfs로 푸는것이 맞습니다. 하지만 dfs에 가지치기를 잘 하면 dfs로 문제를 통과할 수 있습니다.  
+1. ans 배열에 현재 그 위치까지 오는데 걸리는 최소 시간을 저장해 갑니다.  
+2. 만약 이동하려는 위치의 ans값이 min보다 작으면 탐색하지 않습니다.  
+3. 또한 이동하려는 위치의 ans값(ans[dx][dy])이 현재까지 오는데 필요한 시간(ans[a][b]) 에 이동하려는 칸에서 걸리는 시간을 더한 것 보다 크면 최소가 될 수 없기에 이동할 필요가 없으므로 큐에 담지 않습니다.
+```java
+if(!visited[dx][dy] || ans[dx][dy] > ans[a][b] + map[dx][dy]){
+    visited[dx][dy] = true;
+    ans[dx][dy] = ans[a][b] + map[dx][dy];
+    stack.push(new Pos(dx, dy));
+}
+```
+
+# dijkstra(다익스트라) 알고리즘 이용(Solution4.java)
+정점 A에서 정점 B까지 최단 경로를 찾는 문제와 같기 때문에 다익스트라 알고리즘을 이용하여 풀 수도 있습니다.
+0. 거리를 저장할 distance 2차원 배열(int)을 모두 MAX 값으로 초기화 합니다. 방문 여부를 저장할 visited 2차원 배열(boolean)도 필요합니다.
+1. 시작 노드를 초기화 합니다. (distance=0, 방문 체크)
+2. 시작 노드와 연결된 노드의 distance를 갱신해 줍니다.
+3. distance중 최소값을 가지는 index를 찾습니다.(minX, minY)
+4. 최소 거리를 가지는 정점을 방문처리 합니다.
+5. 방금 방문한 정점과 연결되었으며 방문하지 않은 노드들에 대해 더 짧은 거리가 있다면 갱신합니다.
+6. 3-5번은 모든 점에 대하여 check 합니다.(시작, 끝 점 제외 n*n-2개)

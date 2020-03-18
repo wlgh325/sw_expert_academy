@@ -20,7 +20,7 @@
 행과 열의 크기를 알아야하기 때문에 bfs는 맞지 않다고 생각했습니다.  
 그래서 다음과 같이 구현하였습니다.
 
-- <span style="color: red; font-weight:bold; font-size:13pt">search</span>
+- <span style="color: blue; font-weight:bold; font-size:13pt">search</span>
 0. 방문하지 않았고 map에 쓰여진 값이 0이 아니라면 탐색을 시작합니다.
 1. 우선 오른쪽으로 이동하며 column의 개수를 잽니다. 유효하지 않은 인덱스거나 0이 아니면 탐색을 그만합니다
 2. 이제 아래쪽으로 내려가며 행의 크기를 search합니다. 이도 위와 같은 방식으로 동작합니다.
@@ -28,7 +28,7 @@
 4. 행과 열을 가진 Matrix 객체를 반환합니다.
 <br><br>
 
-- <span style="color: red; font-weight:bold; font-size:13pt">sorting</span>
+- <span style="color: blue; font-weight:bold; font-size:13pt">sorting</span>
 comparator를 구현합니다. 오름차순으로 정렬합니다.
 1. 왼쪽 인자의 행*열의 값이 크다면 1을 반환, 작다면 -1을 반환합니다.
 2. 같은 경우 행을 기준으로 구분합니다. 왼쪽 인자의 행이 더 크다면 1, 작다면 -1 같다면 0을 반환하여 행*열의 값 기준 오름차순, 같다면 행 기준 오름차순으로 정렬합니다.

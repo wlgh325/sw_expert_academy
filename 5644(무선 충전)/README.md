@@ -1,6 +1,6 @@
 # <span style="color:orange; font-size:17pt; font-weight:bold">sw expert academy 5644번 무선 충전 자바(java)  풀이</span>
 - 모의 SW 역량 테스트
-- [sw expert academy 2383번 점심 식사시간](https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5-BEE6AK0DFAVl)
+- [sw expert academy 5644번 무선 충전](https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AWXRDL1aeugDFAUo&categoryId=AWXRDL1aeugDFAUo&categoryType=CODE)
 
 ## [티스토리 주소](https://hoho325.tistory.com/)
 
